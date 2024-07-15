@@ -1,0 +1,50 @@
+<html lang="en" style="color-scheme: light dark;">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Blog</title>
+  </head>
+  <body
+    style="font-family:system-ui,sans-serif;max-width:650px;margin:0 auto;padding:3rem 1rem;"
+  >
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
+<style is:global>
+	* {
+		box-sizing: border-box;
+	}
+  img {
+    max-width: 100%;
+    font-style: italic;
+  }
+  p {
+    line-height: 1.6;
+  }
+  p,
+  dl,
+  multicol {
+    display: block;
+    margin-block-start: 2em;
+    margin-block-end: 2em;
+  }
+  blockquote {
+	border-left: 1px solid;
+	margin-inline-start: 0;
+	padding-inline-start: 40px;
+  }
+
+  code::before,
+  code::after {
+	content: "`";
+  }
+
+  pre code::before,
+  pre code::after {
+	content: initial;
+  }
+</style>

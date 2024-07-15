@@ -1,0 +1,53 @@
+---
+import TOC from "../../components/TOC.astro"
+import Layout from "../../layouts/main.astro"
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const postsEntries = await getCollection('posts');
+
+  return postsEntries.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await entry.render();
+
+function buildHierarchy(headings: any)
+{
+  const toc: any[] = [];
+  const parentHeadings = new Map();
+  
+  if (!headings)
+    return toc;
+  
+  headings.forEach((h: any) => {
+    const heading = { ...h, subheadings: [] };
+    parentHeadings.set(heading.depth, heading);
+    if (heading.depth === 2) {
+      toc.push(heading);
+    } else {
+      parentHeadings.get(heading.depth - 1).subheadings.push(heading);
+    }
+  });
+  return toc;
+}
+
+const toc = buildHierarchy(headings)
+---
+<Layout>
+  <header>
+      <a href="/">Home</a>
+  </header>
+	<h1>{entry.data.title}</h1>
+	{toc && toc.length > 0 && (
+	  <details class="article-toc">
+		<summary>TABLE OF CONTENTS</summary>
+	    <ul>
+	      {toc.map((heading) => <TOC heading={heading} />)}
+	    </ul>
+	  </details>
+	)}
+	<Content />
+</Layout>
