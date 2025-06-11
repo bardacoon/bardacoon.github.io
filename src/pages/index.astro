@@ -1,15 +1,158 @@
 ---
-import Layout from "../layouts/main.astro"
-import {getCollection} from "astro:content"
-const posts = await getCollection('posts')
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { formatTags } from "../utils";
+const posts = await getCollection("blog");
+const sortedPosts = posts.sort(
+    (a, b) =>
+        new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
+);
+
+const parsedPosts = [];
+
+for (const post of sortedPosts) {
+    parsedPosts.push({
+        id: post.id,
+        href: "/blog/" + post.id,
+        title: post.data.title,
+        tags: await formatTags(post.data.tags),
+        description: post.data.description,
+    });
+}
 ---
-<Layout>
-	<h1>Blog</h1>
-	{posts.map(post => {
-		return(
-			<article>
-				<h2><a href={`/p/${post.slug}`}>{post.data.title}</a></h2>
-			</article>
-		)
-	})}
+
+<Layout search={true}>
+    <section class="archive">
+        {
+            parsedPosts.map((post) => (
+                <article>
+                    <h2 transition:name={"title-" + post.id}>
+                        <a href={post.href}>{post.title}</a>
+                    </h2>
+                    <div class="info-wrapper">
+                        {post.tags && (
+                            <ul class="tags">
+                                {post.tags.map((tag) => (
+                                    <li>{tag}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    {post.description && (
+                        <div class="description">{post.description}</div>
+                    )}
+                </article>
+            ))
+        }
+    </section>
 </Layout>
+
+<script>
+    const form: HTMLFormElement | null =
+        document.querySelector("form#search-form");
+    const articles = document.querySelectorAll("article");
+    const articlesText = Array.from(articles).map((article) =>
+        article.innerText.toLowerCase(),
+    );
+
+    form?.addEventListener("submit", (e) => e.preventDefault());
+    form?.addEventListener("input", () => {
+        const formData = new FormData(form);
+        const q = formData.get("query") as string | null;
+        articlesText.forEach((text, index) => {
+            if (text.includes(q?.toLowerCase() || "")) {
+                articles[index].classList.remove("hidden");
+            } else {
+                articles[index].classList.add("hidden");
+            }
+        });
+    });
+</script>
+
+<style>
+    section {
+        padding-top: 1.125rem;
+        gap: 2.25rem;
+        display: grid;
+        --grid-item-width: 20.3125rem;
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(var(--grid-item-width), 1fr)
+        );
+        grid-template-columns: repeat(
+            auto-fill,
+            minmax(min(var(--grid-item-width), 100%), 1fr)
+        );
+        grid-auto-rows: 1fr;
+
+        article {
+            border: 1px solid currentColor;
+            padding: 0.9375rem 1.5rem 1rem;
+            position: relative;
+
+            &:has(:focus-visible) {
+                outline: 4px solid currentColor;
+                outline-offset: 4px;
+            }
+
+            h2 {
+                font-size: 2rem;
+                font-family: var(--ff-secondary);
+                margin-block-end: 0.5rem;
+                a {
+                    &::after {
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                    }
+                }
+
+                & a:focus-visible {
+                    outline: none;
+                }
+            }
+
+            &:has(.description) {
+                .info-wrapper:has(.tags) {
+                    border-block-end: 1px solid currentColor;
+                }
+            }
+
+            &:not(:has(.description)) {
+                .info-wrapper {
+                    display: none;
+                }
+            }
+
+            .info-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 2rem;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                border-block-start: 1px solid currentColor;
+
+                &:has(.tags) {
+                    border-block-end: 1px solid currentColor;
+                    padding-block: 0.0625rem;
+                }
+
+                .tags {
+                    list-style-type: none;
+                    display: flex;
+                    align-items: center;
+                    li:not(:last-child) {
+                        &::after {
+                            content: ",\00a0";
+                        }
+                    }
+                }
+            }
+
+            .description {
+                margin-block-start: 0.75rem;
+            }
+        }
+    }
+</style>

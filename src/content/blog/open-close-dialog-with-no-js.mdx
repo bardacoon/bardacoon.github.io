@@ -1,0 +1,27 @@
+---
+title: "How to Open/Close <Dialogs> without JS using [command] and [commandfor]"
+tags: ['css']
+pubDate: "Jun 11 2025"
+---
+
+Chrome introduced a new feature, the `command` attribute, that can be [applied to buttons](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/button#command).
+
+The `command` takes in some predefined values, and you target the element you want to run this commands to with the `commandfor` attribute
+
+```html
+<button
+    command="show-modal"
+    commandfor="mydialog"
+>
+    Open Dialog
+</button>
+
+<dialog id="mydialog"></dialog>
+```
+
+<p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="LEVdXjG" data-pen-title="Open/Close Dialog with no JS" data-editable="true" data-user="Bard-the-scripter" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
+  <span>See the Pen <a href="https://codepen.io/Bard-the-scripter/pen/LEVdXjG">
+  Open/Close Dialog with no JS</a> by Bard (<a href="https://codepen.io/Bard-the-scripter">@Bard-the-scripter</a>)
+  on <a href="https://codepen.io">CodePen</a>.</span>
+</p>
+<script async src="https://public.codepenassets.com/embed/index.js"></script>

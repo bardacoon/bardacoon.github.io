@@ -1,6 +1,24 @@
-import { defineConfig } from 'astro/config';
+// @ts-check
+import { defineConfig, fontProviders } from "astro/config";
+
+import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
-    site: 'https://bardacoon.github.io',
+  experimental: {
+      fonts: [
+          {
+              provider: fontProviders.google(),
+              name: "Crimson Text",
+              cssVariable: "--ff-primary",
+          },
+          {
+              provider: fontProviders.google(),
+              name: "Instrument Serif",
+              cssVariable: "--ff-secondary",
+          },
+      ],
+  },
+
+  integrations: [mdx()],
 });

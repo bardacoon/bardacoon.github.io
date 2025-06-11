@@ -1,0 +1,154 @@
+---
+import { formatDate, formatTags } from "./../../utils/index";
+import type { CollectionEntry } from "astro:content";
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+export async function getStaticPaths() {
+    const posts = await getCollection("blog");
+    return posts.map((post: CollectionEntry<"blog">) => ({
+        params: { slug: post.id },
+        props: post,
+    }));
+}
+
+type Props = CollectionEntry<"blog">;
+
+const post = Astro.props;
+const tags = await formatTags(post.data.tags);
+const { Content } = await render(post);
+const date = formatDate(post.data.pubDate);
+---
+
+<Layout>
+    <article>
+        <h1 transition:name={"title-" + post.id}>{post.data.title}</h1>
+        <div class="info-wrapper">
+            <div class="date">
+                {date}
+            </div>
+            {
+                tags && (
+                    <ul class="tags">
+                        {tags.map((tag) => (
+                            <li>{tag}</li>
+                        ))}
+                    </ul>
+                )
+            }
+        </div>
+        <div class="content">
+            <Content />
+        </div>
+    </article>
+</Layout>
+
+<style>
+    article {
+        --_bleed: 6rem;
+        --_semi-bleed: 6rem;
+        margin-block-start: 4.375rem;
+        margin-inline: auto;
+        display: grid;
+        grid-template-columns:
+        [all-start] minmax(0, 1fr) [bleed-start] minmax(0, var(--_bleed)) [semibleed-start] minmax(0, var(--_semi-bleed)) [content-start] min(100%, 65ch) [content-end] minmax(0, var(--_semi-bleed)) [semibleed-end] minmax(0, var(--_bleed)) [bleed-end] minmax(0, 1fr) [all-end];
+
+        & > .content {
+            grid-column: all;
+            display: grid;
+            grid-template-columns: subgrid;
+
+        }
+
+        & > .content > :global(*),
+        & > * {
+            grid-column: content;
+        }
+
+        & :is(h1) {
+            grid-column: bleed;
+        }
+
+        & > .content > :global(:is(
+            .cp_embed_wrapper,
+            pre,
+        )) {
+        grid-column: semibleed;
+    }
+
+        & > .content > :global(.cp_embed_wrapper) {
+            min-height: 50vh
+        }
+
+        & > .content > :global(.cp_embed_wrapper iframe) {
+            height: 100%;
+            
+        }
+
+        h1 {
+            font-size: clamp(2.2rem, 8vw, 4rem);
+            font-family: var(--ff-secondary);
+            text-align: center;
+
+            @media screen and (width < 748px) {
+                text-align: left;
+            }
+        }
+
+        .info-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            border-block: 1px solid currentColor;
+            padding-block: 0.125rem;
+            margin-block: 1.125rem;
+            margin-block-end: 2rem;
+
+            .tags {
+                list-style-type: none;
+                display: flex;
+                align-items: center;
+                li:not(:last-child) {
+                    &::after {
+                        content: ",\00a0";
+                    }
+                }
+            }
+        }
+
+        .content {
+            font-size: 1.125rem;
+
+            & > *:not(:last-child) {
+                margin-bottom: 1.2lh;
+            }
+
+            a {
+                text-decoration: underline;
+                text-underline-offset: 3px;
+                text-decoration-skip-ink: none;
+            }
+
+            pre {
+                padding: 2rem;
+                font-size: 0.9em;
+            }
+
+            p code {
+                border: 1px solid rgb(from currentColor r g b / 0.2);
+                font-size: 0.9em;
+                padding: 0.1em 0.2em;
+
+                &::after {
+                    content: "`";
+                }
+
+                &::before {
+                    content: "`";
+                }
+            }
+        }
+    }
+</style>
